@@ -1,28 +1,30 @@
 # Vault::Sync
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/vault/sync`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'vault-sync'
-```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install vault-sync
+A CLI tool for one-way sync of a key/value secrets engine from one HashiCorp Vault cluster to another.
 
 ## Usage
 
-TODO: Write usage instructions here
+We’ve packaged this up into a Docker container for ease of use, and all you need to do is pass in the necessary env vars & parameters.
+
+Bear in mind that this _will_ overwrite any identical paths, so it is meant for a one-way sync, e.g., from prod → dev.
+
+```bash
+docker run --rm athenahealth/vault-sync "vault-sync $key_path $VAULT_ADDR_ORIGIN $VAULT_TOKEN_ORIGIN $VAULT_ADDR_DESTINATION $VAULT_TOKEN_DESTINATION"
+```
+
+If you’d prefer to run it directly, you’ll need a working Ruby v3.x environment. From there, you install the gem:
+
+```bash
+gem install vault-sync
+```
+
+Then you can use it like so:
+
+```bash
+vault-sync $key_path \
+    $VAULT_ADDR_ORIGIN      $VAULT_TOKEN_ORIGIN \
+    $VAULT_ADDR_DESTINATION $VAULT_TOKEN_DESTINATION
+```
 
 ## Development
 
@@ -32,7 +34,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/vault-sync. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/vault-sync/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/jeffbyrnes/vault-sync. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/jeffbyrnes/vault-sync/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -40,4 +42,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Vault::Sync project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/vault-sync/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Vault::Sync project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/jeffbyrnes/vault-sync/blob/master/CODE_OF_CONDUCT.md).
