@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.executables   = Dir.glob('exe/*').map { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'optparse-plus', '~> 3.0'
   spec.add_dependency 'vault', '~> 0.15.0'
 
   spec.add_development_dependency 'pry', '~> 0.14.0'
