@@ -1,45 +1,39 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require 'optparse'
-require 'optparse_plus'
 require 'vault/sync'
+require 'tty/logger'
+require 'tty/prompt'
 
-class App
-  include OptparsePlus::Main
-  include OptparsePlus::CLILogging
+logger = TTY::Logger.new
+prompt = TTY::Prompt.new
 
-  main do # Add args you want: |like,so|
-    # your program code here
-    # You can access CLI options via
-    # the options Hash
-  end
+begin
+  cmd = Vault::Sync::Command.new
+  cmd.parse.run
 
-  # supplemental methods here
+  cmd.params[:origin_token] = if cmd.params[:origin_token].nil?
+                                if ENV['VAULT_TOKEN_ORIGIN'].nil?
+                                  prompt.mask('Please enter a Vault Token for your ORIGIN Vault:')
+                                else
+                                  ENV['VAULT_TOKEN_ORIGIN']
+                                end
+                              end
 
-  # Declare command-line interface here
+  cmd.params[:destination_token] = if cmd.params[:destination_token].nil?
+                                     if ENV['VAULT_TOKEN_DESTINATION'].nil?
+                                       prompt.mask('Please enter a Vault Token for your DESTINATION Vault:')
+                                     else
+                                       ENV['VAULT_TOKEN_DESTINATION']
+                                     end
+                                   end
 
-  # description "one line description of your app"
-  #
-  # Accept flags via:
-  # on("--flag VAL","Some flag")
-  # options[flag] will contain VAL
-  #
-  # Specify switches via:
-  # on("--[no-]switch","Some switch")
-  #
-  # Or, just call OptionParser methods on opts
-  #
-  # Require an argument
-  # arg :some_arg
-  #
-  # # Make an argument optional
-  # arg :optional_arg, :optional
+  cmd.params[:namespace] = ENV['VAULT_TOKEN_ORIGIN'] if cmd.params[:namespace].nil? && ENV['VAULT_NAMESPACE']
 
-  version Vault::Sync::VERSION
-
-  use_log_level_option toggle_debug_on_signal: 'USR1'
-
-  description 'My awesome command line app!'
-
-  go!
+  sync = Vault::Sync.new(cmd.params)
+  sync.run!
+rescue Interrupt
+  # Ignore
+rescue StandardError => e
+  logger.fatal('Error:', e)
 end
