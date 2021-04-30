@@ -16,9 +16,14 @@ module Vault
         desc 'One-way recursive sync of HashiCorp Vault KV data'
       end
 
-      argument :path do
+      argument :origin_path do
         required
         desc 'The Vault key path to recursively copy'
+      end
+
+      argument :destination_path do
+        required
+        desc 'The destination Vault path for the recursive copy'
       end
 
       flag :help do
