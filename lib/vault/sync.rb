@@ -10,7 +10,7 @@ module Vault
   class Sync
     class Error < StandardError; end
 
-    attr_accessor :destination_addr, :destination_token, :namespace, :origin_addr, :origin_token, :path
+    attr_accessor :destination_addr, :destination_token, :namespace, :origin_addr, :origin_token, :origin_path, :destination_path
 
     def initialize(params)
       @destination_addr  = params[:destination_addr]
@@ -18,7 +18,8 @@ module Vault
       @namespace         = params['namespace']
       @origin_addr       = params[:origin_addr]
       @origin_token      = params[:origin_token]
-      @path              = params[:path]
+      @origin_path       = params[:origin_path]
+      @destination_path  = params[:destination_path]
     end
 
     def origin_vault
@@ -82,8 +83,8 @@ module Vault
     def origin_secrets
       origin_secrets = {}
 
-      vault_paths(@path).each do |path|
-        vault_secret_keys(path).each do |key|
+      vault_paths(@origin_path).each do |origin_path|
+        vault_secret_keys(origin_path).each do |key|
           origin_secret = origin_vault.logical.read(key)
 
           if origin_secret.respond_to? :data
@@ -99,9 +100,9 @@ module Vault
     end
 
     def run!
-      origin_secrets.each do |path, _secret|
-        $stdout.puts "Writing #{path}…"
-        # destination_vault.logical.write(path, secret)
+      origin_secrets.each do |origin_path, _secret|
+        $stdout.puts "Writing #{origin_path} to #{destination_path}…"
+        # destination_vault.logical.write(destination_path, secret)
       end
     end
 
