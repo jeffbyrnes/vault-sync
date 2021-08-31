@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'vault/sync'
+require 'tty/logger'
+require 'tty/prompt'
+
+logger = TTY::Logger.new
+prompt = TTY::Prompt.new
+
+begin
+  cmd = Vault::Sync::Command.new
+  cmd.parse.run
+
+  cmd.params[:origin_token] = if cmd.params[:origin_token].nil?
+                                if ENV['VAULT_TOKEN_ORIGIN'].nil?
+                                  prompt.mask('Please enter a Vault Token for your ORIGIN Vault:')
+                                else
+                                  ENV['VAULT_TOKEN_ORIGIN']
+                                end
+                              end
+
+  cmd.params[:destination_token] = if cmd.params[:destination_token].nil?
+                                     if ENV['VAULT_TOKEN_DESTINATION'].nil?
+                                       prompt.mask('Please enter a Vault Token for your DESTINATION Vault:')
+                                     else
+                                       ENV['VAULT_TOKEN_DESTINATION']
+                                     end
+                                   end
+
+  cmd.params[:namespace] = ENV['VAULT_TOKEN_ORIGIN'] if cmd.params[:namespace].nil? && ENV['VAULT_NAMESPACE']
+
+  sync = Vault::Sync.new(cmd.params)
+  sync.run!
+rescue Interrupt
+  # Ignore
+rescue StandardError => e
+  logger.fatal('Error:', e)
+end
